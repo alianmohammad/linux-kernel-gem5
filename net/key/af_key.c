@@ -3639,7 +3639,7 @@ static int pfkey_recvmsg(struct kiocb *kiocb,
 	}
 
 	skb_reset_transport_header(skb);
-	err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, copied);
+	err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, copied, false);
 	if (err)
 		goto out_free;
 

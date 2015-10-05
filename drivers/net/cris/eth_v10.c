@@ -38,6 +38,7 @@
 #include <asm/ethernet.h>
 #include <asm/cache.h>
 #include <arch/io_interface_mux.h>
+#include <m5op.h>
 
 //#define ETHDEBUG
 #define D(x)
@@ -1278,7 +1279,6 @@ e100_rx(struct net_device *dev)
 		       skb_end_pointer(skb));
 		printk("copying packet to 0x%x.\n", skb_data_ptr);
 #endif
-
 		memcpy(skb_data_ptr, phys_to_virt(myNextRxDesc->descr.buf), length);
 	}
 	else {

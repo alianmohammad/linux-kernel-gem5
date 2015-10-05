@@ -74,6 +74,7 @@
 #include <linux/ipsec.h>
 #include <asm/unaligned.h>
 #include <net/netdma.h>
+//#include "m5op.h"
 
 int sysctl_tcp_timestamps __read_mostly = 1;
 int sysctl_tcp_window_scaling __read_mostly = 1;
@@ -4379,7 +4380,10 @@ static void tcp_data_queue(struct sock *sk, struct sk_buff *skb)
 			__set_current_state(TASK_RUNNING);
 
 			local_bh_enable();
-			if (!skb_copy_datagram_iovec(skb, 0, tp->ucopy.iov, chunk)) {
+			if (!skb_copy_datagram_iovec(skb, 0, tp->ucopy.iov, chunk, true)) {
+                //printk (KERN_EMERG "##### alian tcp_input.cc : tcp_data_queue len=%d addr=%lu\n",chunk, __pa(*skb->data));
+                //m5_dumpreset_stats(chunk,__pa(*skb->data));
+
 				tp->ucopy.len -= chunk;
 				tp->copied_seq += chunk;
 				eaten = (chunk == skb->len);
@@ -4933,8 +4937,11 @@ static int tcp_copy_to_iovec(struct sock *sk, struct sk_buff *skb, int hlen)
 	int err;
 
 	local_bh_enable();
-	if (skb_csum_unnecessary(skb))
-		err = skb_copy_datagram_iovec(skb, hlen, tp->ucopy.iov, chunk);
+	if (skb_csum_unnecessary(skb)) {
+		err = skb_copy_datagram_iovec(skb, hlen, tp->ucopy.iov, chunk, true);
+        //printk (KERN_EMERG "##### alian tcp_input.cc : tcp_copy_to_iovec len=%d addr=%lu\n",chunk,__pa(*skb->data));
+        //m5_dumpreset_stats(chunk,__pa(*skb->data));
+    }
 	else
 		err = skb_copy_and_csum_datagram_iovec(skb, hlen,
 						       tp->ucopy.iov);

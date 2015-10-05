@@ -58,6 +58,7 @@
 #include <asm/dma.h>
 #include <asm/pgtable.h>
 #include <asm/cacheflush.h>
+#include "m5op.h"
 
 static char version[] __initdata =
 	"82596.c $Revision: 1.5 $\n";

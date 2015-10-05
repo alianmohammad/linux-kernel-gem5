@@ -284,6 +284,7 @@
 #include <asm/uaccess.h>
 #include <asm/ioctls.h>
 #include <net/busy_poll.h>
+#include "m5op.h"
 
 int sysctl_tcp_fin_timeout __read_mostly = TCP_FIN_TIMEOUT;
 
@@ -1370,7 +1371,10 @@ static int tcp_peek_sndq(struct sock *sk, struct msghdr *msg, int len)
 	/* XXX -- need to support SO_PEEK_OFF */
 
 	skb_queue_walk(&sk->sk_write_queue, skb) {
-		err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, skb->len);
+		err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, skb->len, true);
+        //printk (KERN_EMERG "##### alian tcp.c : tcp_peek_sndq len=%d addr=%lu\n",skb->len, __pa(skb->data));
+        //m5_dumpreset_stats(skb->len,__pa(skb->data));
+
 		if (err)
 			break;
 
@@ -1926,7 +1930,10 @@ do_prequeue:
 #endif
 			{
 				err = skb_copy_datagram_iovec(skb, offset,
-						msg->msg_iov, used);
+						msg->msg_iov, used, true);
+                //printk (KERN_EMERG "##### alian tcp.c : tcp_recvmsg len=%d addr=%lu\n",used,__pa(skb->data));
+                //m5_dumpreset_stats(used,__pa(skb->data));
+
 				if (err) {
 					/* Exception. Bailout! */
 					if (!copied)

@@ -58,6 +58,7 @@
 #include <net/tcp_states.h>
 #include <trace/events/skb.h>
 #include <net/busy_poll.h>
+#include "m5op.h"
 
 /*
  *	Is a socket 'connection oriented' ?
@@ -318,12 +319,14 @@ EXPORT_SYMBOL(skb_kill_datagram);
  *	Note: the iovec is modified during the copy.
  */
 int skb_copy_datagram_iovec(const struct sk_buff *skb, int offset,
-			    struct iovec *to, int len)
+			    struct iovec *to, int len, bool flag)
 {
 	int start = skb_headlen(skb);
 	int i, copy = start - offset;
 	struct sk_buff *frag_iter;
-
+    //printk (KERN_EMERG "##### alian datagram.cc : skb_copy_datagram_iovec len1=%d\n",len);
+    //m5_dumpreset_stats(len,0);
+    //m5_dumpreset_stats(skb->data,__pa(skb->data));
 	trace_skb_copy_datagram_iovec(skb, len);
 
 	/* Copy header. */
@@ -332,6 +335,10 @@ int skb_copy_datagram_iovec(const struct sk_buff *skb, int offset,
 			copy = len;
 		if (memcpy_toiovec(to, skb->data + offset, copy))
 			goto fault;
+        else if (flag) {
+            m5_dumpreset_stats(__pa(skb->data + offset), __pa(to->iov_base));
+            m5_dumpreset_stats(0, 0);
+        }
 		if ((len -= copy) == 0)
 			return 0;
 		offset += copy;
@@ -355,6 +362,10 @@ int skb_copy_datagram_iovec(const struct sk_buff *skb, int offset,
 			vaddr = kmap(page);
 			err = memcpy_toiovec(to, vaddr + frag->page_offset +
 					     offset - start, copy);
+            if (flag) {
+                m5_dumpreset_stats(__pa(vaddr + frag->page_offset + offset - start), __pa(to->iov_base));
+                m5_dumpreset_stats(1, 1);
+            }
 			kunmap(page);
 			if (err)
 				goto fault;
@@ -376,7 +387,7 @@ int skb_copy_datagram_iovec(const struct sk_buff *skb, int offset,
 				copy = len;
 			if (skb_copy_datagram_iovec(frag_iter,
 						    offset - start,
-						    to, copy))
+						    to, copy, flag))
 				goto fault;
 			if ((len -= copy) == 0)
 				return 0;
@@ -785,7 +796,7 @@ int skb_copy_and_csum_datagram_iovec(struct sk_buff *skb,
 	if (iov->iov_len < chunk) {
 		if (__skb_checksum_complete(skb))
 			goto csum_error;
-		if (skb_copy_datagram_iovec(skb, hlen, iov, chunk))
+		if (skb_copy_datagram_iovec(skb, hlen, iov, chunk, false))
 			goto fault;
 	} else {
 		csum = csum_partial(skb->data, hlen, skb->csum);

@@ -820,7 +820,7 @@ static int llc_ui_recvmsg(struct kiocb *iocb, struct socket *sock,
 
 		if (!(flags & MSG_TRUNC)) {
 			int rc = skb_copy_datagram_iovec(skb, offset,
-							 msg->msg_iov, used);
+							 msg->msg_iov, used, false);
 			if (rc) {
 				/* Exception. Bailout! */
 				if (!copied)

@@ -463,7 +463,7 @@ static ssize_t ppp_read(struct file *file, char __user *buf,
 	ret = -EFAULT;
 	iov.iov_base = buf;
 	iov.iov_len = count;
-	if (skb_copy_datagram_iovec(skb, 0, &iov, skb->len))
+	if (skb_copy_datagram_iovec(skb, 0, &iov, skb->len, false))
 		goto outf;
 	ret = skb->len;
 

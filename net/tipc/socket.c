@@ -1090,7 +1090,7 @@ restart:
 			m->msg_flags |= MSG_TRUNC;
 		}
 		res = skb_copy_datagram_iovec(buf, msg_hdr_sz(msg),
-					      m->msg_iov, sz);
+					      m->msg_iov, sz, false);
 		if (res)
 			goto exit;
 		res = sz;
@@ -1189,7 +1189,7 @@ restart:
 		sz_to_copy = (sz <= needed) ? sz : needed;
 
 		res = skb_copy_datagram_iovec(buf, msg_hdr_sz(msg) + offset,
-					      m->msg_iov, sz_to_copy);
+					      m->msg_iov, sz_to_copy, false);
 		if (res)
 			goto exit;
 

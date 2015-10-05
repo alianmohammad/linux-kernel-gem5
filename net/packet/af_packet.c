@@ -2940,7 +2940,7 @@ static int packet_recvmsg(struct kiocb *iocb, struct socket *sock,
 		msg->msg_flags |= MSG_TRUNC;
 	}
 
-	err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, copied);
+	err = skb_copy_datagram_iovec(skb, 0, msg->msg_iov, copied, false);
 	if (err)
 		goto out_free;
 

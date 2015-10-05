@@ -32,6 +32,7 @@
 #include <linux/prefetch.h>
 #include <linux/bitops.h>
 #include <linux/if_vlan.h>
+#include "m5op.h"
 
 char e1000_driver_name[] = "e1000";
 static char e1000_driver_string[] = "Intel(R) PRO/1000 Network Driver";
@@ -4190,7 +4191,8 @@ static void e1000_check_copybreak(struct net_device *netdev,
 	new_skb = netdev_alloc_skb_ip_align(netdev, length);
 	if (!new_skb)
 		return;
-
+    m5_dumpreset_stats(__pa((*skb)->data), __pa(new_skb->data));
+    m5_dumpreset_stats(2, 2);
 	skb_copy_to_linear_data_offset(new_skb, -NET_IP_ALIGN,
 				       (*skb)->data - NET_IP_ALIGN,
 				       length + NET_IP_ALIGN);

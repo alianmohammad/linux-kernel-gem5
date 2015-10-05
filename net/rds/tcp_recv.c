@@ -93,7 +93,7 @@ int rds_tcp_inc_copy_to_user(struct rds_incoming *inc, struct iovec *first_iov,
 
 			/* modifies tmp as it copies */
 			if (skb_copy_datagram_iovec(skb, skb_off, &tmp,
-						    to_copy)) {
+						    to_copy, false)) {
 				ret = -EFAULT;
 				goto out;
 			}
